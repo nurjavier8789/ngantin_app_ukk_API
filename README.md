@@ -1,6 +1,6 @@
 # Proyek UKK Kantin Sekolah (API)
 
-**Yukan! (Yuk Kantin!)**\
+**Ngantin!**\
 by Nur Javier Prasetyo (nurjavier8789)
 
 ---------------------------------------
