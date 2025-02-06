@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'landingPage.dart';
+
 void main() {
   runApp(const mainApp());
 }
@@ -10,9 +12,9 @@ class mainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        body: Container(),
-      ),
+      title: "Ngantin!",
+      home: landingPage(),
     );
   }
 }
+
