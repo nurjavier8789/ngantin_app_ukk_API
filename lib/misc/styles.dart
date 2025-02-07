@@ -14,4 +14,17 @@ class style {
       ),
     );
   }
+
+  ButtonStyle buttonCustomSize(Color warnaBG, Color warnaFont, double fontSize, FontWeight tebalFont, double panjang, double tinggi) {
+    return ElevatedButton.styleFrom(
+      fixedSize: Size(panjang, tinggi),
+      backgroundColor: warnaBG,
+      foregroundColor: warnaFont,
+      textStyle: fonts().googleSansCustom(warnaFont, fontSize, tebalFont),
+
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+    );
+  }
 }
