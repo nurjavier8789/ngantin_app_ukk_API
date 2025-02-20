@@ -14,6 +14,9 @@ class auth {
     api Api = new api();
     Get get = new Get();
 
+    prefs.setString("username", username);
+    prefs.setString("password", password);
+
     int makerID = Api.makerID;
 
     var headers = {"makerID": "$makerID"};
@@ -33,6 +36,7 @@ class auth {
 
         Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => overlayHomeS()), (route) => false);
       } else if (resultData["user"]["role"].contains("admin_stan")) {
+        prefs.setString("token", resultData["access_token"]);
         print("Admin Stan!");
       }
     } else {
@@ -40,5 +44,30 @@ class auth {
     }
   }
 
-  register() {}
+  refreshTokenLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    api Api = new api();
+    Get get = new Get();
+
+    var headers = {"makerID": "${Api.makerID}"};
+
+    var result = await http.post(Uri.parse(Api.loginApi), body: {
+      "username": prefs.get("username"),
+      "password": prefs.get("password")
+    }, headers: headers);
+
+    Map<String, dynamic> resultData = jsonDecode(result.body);
+
+    if (result.statusCode == 200) {
+      if (resultData["user"]["role"].contains("siswa")) {
+        prefs.setString("token", resultData["access_token"]);
+
+        await get.profileSiswa();
+      } else if (resultData["user"]["role"].contains("admin_stan")) {
+        print("Admin Stan!");
+      }
+    } else {
+      print("Gagal Login");
+    }
+  }
 }

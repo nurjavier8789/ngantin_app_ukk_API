@@ -68,6 +68,24 @@ class _akunState extends State<akun> {
                     child: Text("Keluar"),
                   ),
                 ),
+
+                /*
+                Ignore this code, it's just for testing purpose.
+                I'll not include it in the final version.
+
+                Padding(
+                  padding: const EdgeInsets.only(left: 28, right: 28),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setString("token", "");
+                      print("Token cleared!");
+                    },
+                    style: style().buttonCustom(Colors.blueAccent, Colors.white, 18, FontWeight.bold),
+                    child: Text("Clear Token"),
+                  ),
+                ),
+                */
               ],
             ),
           ],

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:yukan_app_ukk/loggedIn/siswa/misc/functions.dart';
 
+import '../misc/widgets.dart';
 import '../../../misc/fonts.dart';
 
 class pesanan extends StatefulWidget {
@@ -10,6 +12,51 @@ class pesanan extends StatefulWidget {
 }
 
 class _pesananState extends State<pesanan> {
+
+  String getOrderStatusInit = 'Semua';
+
+  List<String> getOrderStatusList = [
+    'Belum Dikonfirmasi',
+    'Dimasak',
+    'Diantar',
+    'Sampai',
+  ];
+
+  List notConfirmOrderData = [];
+  List cookOrderData = [];
+  List sentOrderData = [];
+  List arriveOrderData = [];
+  List allOrderData = [];
+
+  fetchOrder() async {
+    notConfirmOrderData = await getNotConfirmOrder();
+    cookOrderData = await getCookOrder();
+    sentOrderData = await getDeliveredOrder();
+    arriveOrderData = await getArriveOrder();
+    allOrderData = [
+      notConfirmOrderData,  // 0 Belum Dikonfirmasi
+      cookOrderData,        // 1 Dimasak
+      sentOrderData,        // 2 Diantar
+      arriveOrderData       // 3 Sampai
+    ];
+
+    await Future.delayed(Duration(seconds: 1));
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    getOrderStatusInit = "Belum Dikonfirmasi";
+    fetchOrder();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    getOrderStatusInit = "Belum Dikonfirmasi";
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,41 +69,48 @@ class _pesananState extends State<pesanan> {
               child: Text("Pesanan", style: fonts().googleSansBold(Colors.black, 28)),
             ),
             Divider(height: 0),
-            ListView(
-              shrinkWrap: true,
-              children: [
-                SizedBox(height: 24),
-                Container(
-                  margin: EdgeInsets.all(14),
-                  child: Text("Belum dikonfirmasi", style: fonts().googleSansBold(Colors.black, 20),),
+            SizedBox(height: 28),
+            Container(
+              margin: EdgeInsets.only(left: 28, right: 28),
+              child: InputDecorator(
+                decoration: widgets().dropDownDecoration_history(),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton(
+                    isExpanded: true,
+                    style: fonts().googleSansRegular(Colors.black, 16),
+                    borderRadius: BorderRadius.circular(8),
+                    value: getOrderStatusInit,
+                    items: getOrderStatusList.map((String E) {
+                      return DropdownMenuItem(
+                        value: E,
+                        child: Text(E),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        getOrderStatusInit = value!;
+                      });
+                    },
+                  ),
                 ),
-                Divider(height: 0),
-                SizedBox(height: 24),
-                Container(
-                  margin: EdgeInsets.all(14),
-                  child: Text("Dimasak", style: fonts().googleSansBold(Colors.black, 20),),
+              ),
+            ),
+            SizedBox(height: 28),
+            if (allOrderData.isEmpty)
+              Center(child: Text("Memuat Pesanan..."))
+            else Padding(
+              padding: EdgeInsets.only(left: 28, right: 28),
+              child: Center(
+                child: RefreshIndicator(
+                  onRefresh: () {
+                    return Future.delayed(Duration(seconds: 1), () {
+                      fetchOrder();
+                      setState(() {});
+                    });
+                  },
+                  child: widgets().cardOrder(context, getOrderStatusInit, allOrderData),
                 ),
-                Divider(height: 0),
-                SizedBox(height: 24),
-                Container(
-                  margin: EdgeInsets.all(14),
-                  child: Text("Diantar", style: fonts().googleSansBold(Colors.black, 20),),
-                ),
-                Divider(height: 0),
-                SizedBox(height: 24),
-                Container(
-                  margin: EdgeInsets.all(14),
-                  child: Text("Sampai", style: fonts().googleSansBold(Colors.black, 20),),
-                ),
-                Divider(height: 0),
-                SizedBox(height: 24),
-                Container(
-                  margin: EdgeInsets.all(14),
-                  child: Text("Selesai", style: fonts().googleSansBold(Colors.black, 20),),
-                ),
-                Divider(height: 0),
-                SizedBox(height: 24),
-              ],
+              ),
             ),
           ],
         )

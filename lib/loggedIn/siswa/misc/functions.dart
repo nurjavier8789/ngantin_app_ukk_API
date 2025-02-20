@@ -1,15 +1,14 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../api.dart';
-import '../../../misc/fonts.dart';
+import '../../../misc/authProcess.dart';
 
 apiSiswa _apiSiswa = new apiSiswa();
-var numberFormat = NumberFormat("#,###");
+
+// -= BERANDA =- //
 
 getFood() async {
   final prefs = await SharedPreferences.getInstance();
@@ -27,7 +26,21 @@ getFood() async {
 
   if (result.statusCode == 200) {
     return resultData["data"];
+  } else if (result.statusCode == 401 && resultData["status"] == false && resultData["message"].contains("token invalid")) {
+    await auth().refreshTokenLogin();
 
+    var headersReload = {
+      "Authorization": "Bearer ${prefs.getString("token")}",
+      "makerID": "${_apiSiswa.makerID}"
+    };
+
+    var resultReload = await http.post(Uri.parse(_apiSiswa.getMenuMakanan), body: {
+      "search": ""
+    }, headers: headersReload);
+
+    Map resultDataReload = jsonDecode(resultReload.body);
+
+    return resultDataReload["data"];
   } else {
     print("Gagal");
   }
@@ -50,56 +63,136 @@ getDrink() async {
   if (result.statusCode == 200) {
     return resultData["data"];
 
+  } else if (result.statusCode == 401 && resultData["status"] == false && resultData["message"].contains("token invalid")) {
+    await auth().refreshTokenLogin();
+
+    var headersReload = {
+      "Authorization": "Bearer ${prefs.getString("token")}",
+      "makerID": "${_apiSiswa.makerID}"
+    };
+
+    var resultReload = await http.post(Uri.parse(_apiSiswa.getMenuMinuman), body: {
+      "search": ""
+    }, headers: headersReload);
+
+    Map resultDataReload = jsonDecode(resultReload.body);
+
+    return resultDataReload["data"];
   } else {
     print("Gagal");
   }
 }
 
-showDetail(BuildContext context, List foodData, int idFood) {
-  Widget okButton = Padding(
-    padding: const EdgeInsetsDirectional.symmetric(horizontal: 8),
-    child: ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color.fromARGB(255, 218, 131, 0),
-        shape: ContinuousRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-      child: const Text("OK", style: TextStyle(color: Colors.white)),
-      onPressed: () {
-        Navigator.pop(context);
-      },
-    ),
-  );
+// -= PESANAN =- //
 
-  AlertDialog details = AlertDialog(
-    contentPadding: EdgeInsets.all(24),
-    title: Text("Detail Makanan", style: fonts().googleSansBold(Colors.black, 26), textAlign: TextAlign.center),
-    content: Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Center(
-          child: ClipRRect(
-            child: foodData[idFood]["foto"].isEmpty ? Image.asset("assets/noImage.png", width: 100,) : Image.network("${_apiSiswa.baseUrlRil}${foodData[idFood]["foto"]}", fit: BoxFit.cover, width: 1080, height: 200),
-            borderRadius: BorderRadius.circular(8),
-          ),
-        ),
-        SizedBox(height: 12),
-        Text('${foodData[idFood]["nama_makanan"]}', style: fonts().googleSansBold(Colors.black, 24), softWrap: true,),
-        SizedBox(height: 10),
-        Text('${foodData[idFood]["deskripsi"]}', softWrap: true, style: fonts().googleSansRegular(Colors.black, 16)),
-        SizedBox(height: 30),
-        Text('Rp.${numberFormat.format(foodData[idFood]["harga"])}', style: fonts().googleSansBold(Colors.black, 16)),
-      ],
-    ),
-    actions: [okButton],
-  );
+getNotConfirmOrder() async {
+  final prefs = await SharedPreferences.getInstance();
 
-  return showDialog(
-    context: context,
-    builder: (context) {
-      return details;
-    },
-  );
+  var headers = {
+    "Authorization": "Bearer ${prefs.getString("token")}",
+    "makerID": "${_apiSiswa.makerID}"
+  };
+
+  var resultBelumOrder = await http.get(Uri.parse(_apiSiswa.getOrder_belum_dikonfirm), headers: headers);
+
+  Map resultDataBelumOrder = jsonDecode(resultBelumOrder.body);
+
+  if (resultBelumOrder.statusCode == 200) {
+    return resultDataBelumOrder["data"];
+  } else {
+    print("Gagal");
+  }
+
 }
+
+getCookOrder() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  var headers = {
+    "Authorization": "Bearer ${prefs.getString("token")}",
+    "makerID": "${_apiSiswa.makerID}"
+  };
+
+  var resultDimasak = await http.get(Uri.parse(_apiSiswa.getOrder_dimasak), headers: headers);
+
+  Map resultDataDimasak = jsonDecode(resultDimasak.body);
+
+  if (resultDimasak.statusCode == 200) {
+    return resultDataDimasak["data"];
+  } else {
+    print("Gagal");
+  }
+}
+
+getDeliveredOrder() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  var headers = {
+    "Authorization": "Bearer ${prefs.getString("token")}",
+    "makerID": "${_apiSiswa.makerID}"
+  };
+
+  var resultDiantar = await http.get(Uri.parse(_apiSiswa.getOrder_diantar), headers: headers);
+
+  Map resultDataDiantar = jsonDecode(resultDiantar.body);
+
+  if (resultDiantar.statusCode == 200) {
+    return resultDataDiantar["data"];
+  } else {
+    print("Gagal");
+  }
+}
+
+getArriveOrder() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  var headers = {
+    "Authorization": "Bearer ${prefs.getString("token")}",
+    "makerID": "${_apiSiswa.makerID}"
+  };
+
+  var resultSampai = await http.get(Uri.parse(_apiSiswa.getOrder_sampai), headers: headers);
+
+  Map resultDataSampai = jsonDecode(resultSampai.body);
+
+  if (resultSampai.statusCode == 200) {
+    return resultDataSampai["data"];
+  } else {
+    print("Gagal");
+  }
+}
+
+getFoodNameThing(int idMenu) async {
+  final prefs = await SharedPreferences.getInstance();
+
+  var headers = {
+    "Authorization": "Bearer ${prefs.getString("token")}",
+    "makerID": "${_apiSiswa.makerID}"
+  };
+
+  var resultFood = await http.post(Uri.parse(_apiSiswa.getMenuMakanan), body: {
+    "search": ""
+  }, headers: headers);
+
+  var resultDrink = await http.post(Uri.parse(_apiSiswa.getMenuMinuman), body: {
+    "search": ""
+  }, headers: headers);
+
+  Map resultDataFood = jsonDecode(resultFood.body);
+  Map resultDataDrink = jsonDecode(resultDrink.body);
+
+  if (resultFood.statusCode == 200) {
+    for (int i = 0; i < resultDataFood["data"].length; i++) {
+      if (resultDataFood["data"][i]["id_menu"] == idMenu) {
+        return resultDataFood["data"][i]["nama_makanan"];
+      } else if (resultDrink.statusCode == 200) {
+        for (int i = 0; i < resultDataDrink["data"].length; i++) {
+          if (resultDataDrink["data"][i]["id_menu"] == idMenu) {
+            return resultDataDrink["data"][i]["nama_makanan"];
+          }
+        }
+      }
+    }
+  }
+}
+// -= AKUN =- //
