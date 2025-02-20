@@ -12,15 +12,15 @@ Bentuk aplikasi jadi akan dipublikasikan ketika aplikasi siap untuk diuji coba
 ---------------------------------------
 # To do List
 
-- [ ] Login (untuk saat ini hanya siswa yang bisa)
+- [x] Login (untuk saat ini hanya siswa yang bisa)
 - [ ] Register\
 \
 -= Non-admin section =-
-- [ ] Home Page (termasuk list makanan & minuman dan nambah ke keranjang)
+- [x] Home Page (hanya bisa lihat menu saja saat ini)
 - [ ] Cart Page
-- [ ] Order Page
-- [ ] Detail Order Page + Print out (?)
-- [ ] Account Page\
+- [x] Order Page
+- [x] Detail Order Page
+- [ ] [ Account Page ]\
 \
 -= Admin section =-
 - [ ] Dashboard Page
@@ -30,4 +30,5 @@ Bentuk aplikasi jadi akan dipublikasikan ketika aplikasi siap untuk diuji coba
 - [ ] Income Page thingy
 - [ ] Discount Page(?)
 
-(To do listnya bisa ganti-ganti sesuai prioritas)
+(To do listnya bisa ganti-ganti sesuai prioritas)\
+*`[]` yang di dalam kurung siku adalah yang sedang aku dikerjakan
