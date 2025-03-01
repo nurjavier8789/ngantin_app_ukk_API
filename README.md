@@ -13,14 +13,14 @@ Bentuk aplikasi jadi akan dipublikasikan ketika aplikasi siap untuk diuji coba
 # To do List
 
 - [x] Login (untuk saat ini hanya siswa yang bisa)
-- [ ] Register\
+- [x] Register\
 \
 -= Non-admin section =-
 - [x] Home Page (hanya bisa lihat menu saja saat ini)
-- [ ] Cart Page
+- [ ] [ Cart Page ]
 - [x] Order Page
 - [x] Detail Order Page
-- [ ] [ Account Page ]\
+- [x] Account Page\
 \
 -= Admin section =-
 - [ ] Dashboard Page
