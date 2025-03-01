@@ -1,10 +1,12 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../api.dart';
 import '../../../misc/authProcess.dart';
+import '../../../misc/fonts.dart';
+import '../../../api.dart';
 
 apiSiswa _apiSiswa = new apiSiswa();
 
@@ -15,7 +17,7 @@ getFood() async {
 
   var headers = {
     "Authorization": "Bearer ${prefs.getString("token")}",
-    "makerID": "${_apiSiswa.makerID}"
+    "makerID": "${prefs.getInt("makerID")}"
   };
 
   var result = await http.post(Uri.parse(_apiSiswa.getMenuMakanan), body: {
@@ -31,7 +33,7 @@ getFood() async {
 
     var headersReload = {
       "Authorization": "Bearer ${prefs.getString("token")}",
-      "makerID": "${_apiSiswa.makerID}"
+      "makerID": "${prefs.getInt("makerID")}"
     };
 
     var resultReload = await http.post(Uri.parse(_apiSiswa.getMenuMakanan), body: {
@@ -51,7 +53,7 @@ getDrink() async {
 
   var headers = {
     "Authorization": "Bearer ${prefs.getString("token")}",
-    "makerID": "${_apiSiswa.makerID}"
+    "makerID": "${prefs.getInt("makerID")}"
   };
 
   var result = await http.post(Uri.parse(_apiSiswa.getMenuMinuman), body: {
@@ -68,7 +70,7 @@ getDrink() async {
 
     var headersReload = {
       "Authorization": "Bearer ${prefs.getString("token")}",
-      "makerID": "${_apiSiswa.makerID}"
+      "makerID": "${prefs.getInt("makerID")}"
     };
 
     var resultReload = await http.post(Uri.parse(_apiSiswa.getMenuMinuman), body: {
@@ -90,7 +92,7 @@ getNotConfirmOrder() async {
 
   var headers = {
     "Authorization": "Bearer ${prefs.getString("token")}",
-    "makerID": "${_apiSiswa.makerID}"
+    "makerID": "${prefs.getInt("makerID")}"
   };
 
   var resultBelumOrder = await http.get(Uri.parse(_apiSiswa.getOrder_belum_dikonfirm), headers: headers);
@@ -110,7 +112,7 @@ getCookOrder() async {
 
   var headers = {
     "Authorization": "Bearer ${prefs.getString("token")}",
-    "makerID": "${_apiSiswa.makerID}"
+    "makerID": "${prefs.getInt("makerID")}"
   };
 
   var resultDimasak = await http.get(Uri.parse(_apiSiswa.getOrder_dimasak), headers: headers);
@@ -129,7 +131,7 @@ getDeliveredOrder() async {
 
   var headers = {
     "Authorization": "Bearer ${prefs.getString("token")}",
-    "makerID": "${_apiSiswa.makerID}"
+    "makerID": "${prefs.getInt("makerID")}"
   };
 
   var resultDiantar = await http.get(Uri.parse(_apiSiswa.getOrder_diantar), headers: headers);
@@ -148,7 +150,7 @@ getArriveOrder() async {
 
   var headers = {
     "Authorization": "Bearer ${prefs.getString("token")}",
-    "makerID": "${_apiSiswa.makerID}"
+    "makerID": "${prefs.getInt("makerID")}"
   };
 
   var resultSampai = await http.get(Uri.parse(_apiSiswa.getOrder_sampai), headers: headers);
@@ -167,7 +169,7 @@ getFoodNameThing(int idMenu) async {
 
   var headers = {
     "Authorization": "Bearer ${prefs.getString("token")}",
-    "makerID": "${_apiSiswa.makerID}"
+    "makerID": "${prefs.getInt("makerID")}"
   };
 
   var resultFood = await http.post(Uri.parse(_apiSiswa.getMenuMakanan), body: {
@@ -195,4 +197,57 @@ getFoodNameThing(int idMenu) async {
     }
   }
 }
+
 // -= AKUN =- //
+
+editProfile(String nama_siswa, String alamat, String telp, String username, BuildContext context) async {
+  final prefs = await SharedPreferences.getInstance();
+
+  String urlThing = "${_apiSiswa.updateProfile}/${prefs.get("id_user")}";
+
+  var headers = {
+    "Authorization": "Bearer ${prefs.getString("token")}",
+    "makerID": "${prefs.getInt("makerID")}"
+  };
+
+  var result = await http.post(Uri.parse(urlThing), body: {
+    "nama_siswa": nama_siswa,
+    "alamat": alamat,
+    "telp": telp,
+    "username": username,
+  }, headers: headers);
+
+  // Map resultData = jsonDecode(result.body);
+
+  if (result.statusCode == 200) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Profile telah diupdate!", style: fonts().googleSansRegular(Colors.white, 16)),
+          ],
+        ),
+        showCloseIcon: true,
+        duration: Duration(seconds: 20),
+      ),
+    );
+    return true;
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Maaf ada kendala saat memperbarui profil.", style: fonts().googleSansRegular(Colors.white, 16)),
+            Text("Silahkan cek kembali data yang dimasukkan", style: fonts().googleSansRegular(Colors.white, 16)),
+            Text("dan coba lagi", style: fonts().googleSansRegular(Colors.white, 16)),
+          ],
+        ),
+        showCloseIcon: true,
+        duration: Duration(seconds: 20),
+      ),
+    );
+    return false;
+  }
+}

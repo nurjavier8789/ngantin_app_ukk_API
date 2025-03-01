@@ -24,17 +24,19 @@ class Get {
         resultData["data"]["alamat"],
         resultData["data"]["telp"],
         "${Api.baseUrlRil}${resultData["data"]["foto"]}",
-        resultData["data"]["id_user"],
+        resultData["data"]["id"],
         resultData["data"]["username"],
+        resultData["data"]["maker_id"],
       );
       
       prefs.setString("nama", resultData["data"]["nama_siswa"]);
       prefs.setString("alamat", resultData["data"]["alamat"]);
       prefs.setString("telp", resultData["data"]["telp"]);
       prefs.setString("foto", resultData["data"]["foto"]);
-      prefs.setInt("id_user", resultData["data"]["id_user"]);
+      prefs.setInt("id_user", resultData["data"]["id"]);
       prefs.setString("username", resultData["data"]["username"]);
       prefs.setString("role", resultData["data"]["role"]);
+      prefs.setInt("makerID", resultData["data"]["maker_id"]);
     }
   }
 

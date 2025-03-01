@@ -114,7 +114,7 @@ class _berandaState extends State<beranda> {
                                             children: [
                                               Text('${foodData[i]["nama_makanan"]}', style: fonts().googleSansBold(Colors.black, 14), softWrap: true),
                                               Text('${foodData[i]["deskripsi"]}', style: fonts().googleSansRegular(Colors.black, 14), softWrap: true, maxLines: 1, overflow: TextOverflow.ellipsis),
-                                              Text('Rp.${numberFormat.format(foodData[i]["harga"])}', style: fonts().googleSansRegular(Colors.black, 14),),
+                                              Text('Rp${numberFormat.format(foodData[i]["harga"])}', style: fonts().googleSansRegular(Colors.black, 14)),
                                             ],
                                           ),
                                         ),
@@ -187,7 +187,7 @@ class _berandaState extends State<beranda> {
                                               children: [
                                                 Text('${drinkData[i]["nama_makanan"]}', style: fonts().googleSansBold(Colors.black, 14), softWrap: true),
                                                 Text('${drinkData[i]["deskripsi"]}', style: fonts().googleSansRegular(Colors.black, 14), softWrap: true, maxLines: 1, overflow: TextOverflow.ellipsis),
-                                                Text('Rp.${numberFormat.format(drinkData[i]["harga"])}'),
+                                                Text('Rp${numberFormat.format(drinkData[i]["harga"])}', style: fonts().googleSansRegular(Colors.black, 14)),
                                               ],
                                             ),
                                           ),

@@ -171,7 +171,7 @@ class widgets {
                             "${listJumlah[i]} item",
                             style: fonts().googleSansRegular(Colors.black, 15),
                           ),
-                          Text("Rp.${numberFormat.format(listTotalHarga[i])}"),
+                          Text("Rp${numberFormat.format(listTotalHarga[i])}"),
                         ],
                       ),
                       ElevatedButton(

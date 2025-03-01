@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import '../misc/styles.dart';
 import '../misc/fonts.dart';
 
-import '../loginPage.dart';
+import 'registerRole/regisSiswa.dart';
+import 'registerRole/regisStan.dart';
 import '../landingPage.dart';
+import '../loginPage.dart';
 
 class registerPage extends StatefulWidget {
   const registerPage({super.key});
@@ -18,9 +20,6 @@ class _registerPageState extends State<registerPage> {
 
   final inputName = TextEditingController();
   final inputUser = TextEditingController();
-
-  bool hidePass = true;
-  bool hidePass2 = true;
 
   String role = "siswa";
 
@@ -94,30 +93,45 @@ class _registerPageState extends State<registerPage> {
                             },
                           ),
 
-                          ListTile(
-                            leading: Radio<String>(
-                              value: "siswa",
-                              groupValue: role,
-                              onChanged: (value) {
-                                setState(() {
-                                  role = value!;
-                                });
-                              },
-                            ),
-                            title: Text("Siswa", style: fonts().googleSansRegular(Colors.black, 16)),
-                          ),
+                          SizedBox(height: 16),
+                          Text("Pilih Role", style: fonts().googleSansBold(Colors.black, 18)),
+                          SizedBox(height: 16),
 
-                          ListTile(
-                            leading: Radio<String>(
-                              value: "admin_stan",
-                              groupValue: role,
-                              onChanged: (value) {
-                                setState(() {
-                                  role = value!;
-                                });
-                              },
-                            ),
-                            title: Text("Admin Stan", style: fonts().googleSansRegular(Colors.black, 16)),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              SizedBox(
+                                width: 150,
+                                child: ListTile(
+                                  leading: Radio<String>(
+                                    value: "siswa",
+                                    groupValue: role,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        role = value!;
+                                      });
+                                    },
+                                  ),
+                                  title: Text("Siswa", style: fonts().googleSansRegular(Colors.black, 16)),
+                                ),
+                              ),
+
+                              SizedBox(
+                                width: 190,
+                                child: ListTile(
+                                  leading: Radio<String>(
+                                    value: "admin_stan",
+                                    groupValue: role,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        role = value!;
+                                      });
+                                    },
+                                  ),
+                                  title: Text("Pemilik Stan", style: fonts().googleSansRegular(Colors.black, 16)),
+                                ),
+                              ),
+                            ],
                           ),
 
                           Column(
@@ -127,6 +141,11 @@ class _registerPageState extends State<registerPage> {
                                 child: ElevatedButton(
                                   onPressed: () {
                                     if (forming.currentState!.validate()) {
+                                      if (role == "siswa") {
+                                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => registerSiswa(nama_siswa: inputName.text, username: inputUser.text)));
+                                      } else if (role == "admin_stan") {
+                                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => registerStanAdmin(nama_pemilik: inputName.text, username: inputUser.text,)));
+                                      }
                                     }
                                   },
                                   style: style().buttonCustom(Colors.blueAccent, Colors.white, 18, FontWeight.bold),
