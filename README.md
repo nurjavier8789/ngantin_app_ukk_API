@@ -10,3 +10,5 @@ Anda bisa cek yang versi menggunakan Firebase [disini!](https://github.com/nurja
 Bentuk aplikasi jadi akan dipublikasikan ketika aplikasi siap untuk diuji coba
 
 ---------------------------------------
+Format versi aplikasiku\
+`[Tahun update].[Bulan update].[Update yang ke-...]-[Beta/Rilis]`
