@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
 
 import 'package:intl/intl.dart';
-import 'package:yukan_app_ukk/loggedIn/siswa/pages/subPages/detailTransaction.dart';
 
+import '../pages/subPages/detailTransaction.dart';
+import '../../../misc/styles.dart';
 import '../../../misc/fonts.dart';
-import '../../../api.dart';
 import '../../userData.dart';
-import 'widgetsInWidgets.dart';
+import '../../../api.dart';
 
 apiSiswa _apiSiswa = new apiSiswa();
 var numberFormat = NumberFormat("#,###", "id_ID");
 
 class widgets {
+
+  // -= HOME =- //
+
   Text greeting() {
     String teks = "";
 
@@ -29,6 +32,14 @@ class widgets {
   }
 
   showDetail(BuildContext context, List foodData, int idFood) {
+    String namaStan = "";
+
+    for (int i = 0; i < dataStan().getDataStan().length; i++) {
+      if (foodData[idFood]["id_stan"] == dataStan().getDataStan()[i]["id"]) {
+        namaStan = dataStan().getDataStan()[i]["nama_stan"];
+      }
+    }
+
     Widget okButton = Padding(
       padding: const EdgeInsetsDirectional.symmetric(horizontal: 8),
       child: ElevatedButton(
@@ -53,9 +64,15 @@ class widgets {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Center(
-            child: ClipRRect(
-              child: foodData[idFood]["foto"].isEmpty ? Image.asset("assets/noImage.png", width: 100,) : Image.network("${_apiSiswa.baseUrlRil}${foodData[idFood]["foto"]}", fit: BoxFit.cover, width: 1080, height: 200),
-              borderRadius: BorderRadius.circular(8),
+            child: Column(
+              children: [
+                Text('Stan $namaStan', style: fonts().googleSansBold(Colors.black, 20), softWrap: true, textAlign: TextAlign.center),
+                SizedBox(height: 12),
+                ClipRRect(
+                  child: foodData[idFood]["foto"].isEmpty ? Image.asset("assets/noImage.png", width: 100,) : Image.network("${_apiSiswa.baseUrlRil}${foodData[idFood]["foto"]}", fit: BoxFit.cover, width: 1080, height: 200),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ],
             ),
           ),
           SizedBox(height: 12),
@@ -77,6 +94,8 @@ class widgets {
     );
   }
 
+  // -= PESANAN =- //
+
   InputDecoration dropDownDecoration_history() {
     return InputDecoration(
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -89,6 +108,20 @@ class widgets {
     int showFiltered = 0;
     Color statusColorText = Colors.black;
 
+    if (currentFilter.contains("Belum Dikonfirmasi")) {
+      statusColorText = Colors.red;
+      showFiltered = 0;
+    } else if (currentFilter.contains("Dimasak")) {
+      statusColorText = Colors.deepOrangeAccent;
+      showFiltered = 1;
+    } else if (currentFilter.contains("Diantar")) {
+      statusColorText = Colors.orange;
+      showFiltered = 2;
+    } else if (currentFilter.contains("Sampai")) {
+      statusColorText = Colors.green;
+      showFiltered = 3;
+    }
+
     List listJumlah = List.filled(dataOrder[showFiltered].length, 0);
     List listTotalHarga = List.filled(dataOrder[showFiltered].length, 0);
     num jumlah = 0;
@@ -96,27 +129,12 @@ class widgets {
 
     Future.delayed(Duration(seconds: 1));
 
-    if (currentFilter.contains("Belum Dikonfirmasi")) {
-      statusColorText = Colors.red;
-      showFiltered = 0;
-    } else if (currentFilter.contains("Dimasak")) {
-      statusColorText = Colors.amber;
-      showFiltered = 1;
-    } else if (currentFilter.contains("Diantar")) {
-      statusColorText = Colors.amber;
-      showFiltered = 2;
-    } else if (currentFilter.contains("Sampai")) {
-      statusColorText = Colors.green;
-      showFiltered = 3;
-    }
-
-    Future.delayed(Duration(seconds: 1));
-
     for (int i = 0; i < dataOrder[showFiltered].length; i++) {
       for (int j = 0; j < dataOrder[showFiltered][i]["detail_trans"].length; j++) {
-        jumlah += dataOrder[showFiltered][i]["detail_trans"][j]["qty"];
         totalHarga += dataOrder[showFiltered][i]["detail_trans"][j]["harga_beli"];
+        jumlah += dataOrder[showFiltered][i]["detail_trans"][j]["qty"];
       }
+
       listJumlah[i] = jumlah;
       listTotalHarga[i] = totalHarga;
       jumlah = 0;
@@ -125,12 +143,86 @@ class widgets {
 
     Future.delayed(Duration(seconds: 1));
 
-    return Container(
-      height: MediaQuery.of(context).size.height-290,
-      child: ListView(
-        shrinkWrap: true,
-        children: [
-          for (int i = 0; i < dataOrder[showFiltered].length; i++)
+    if (dataOrder[showFiltered].isEmpty) {
+      return Container(
+        margin: EdgeInsets.only(top: 12),
+        child: Text("Tidak ada pesanan untuk saat ini"),
+      );
+    } else {
+      return Container(
+        height: MediaQuery.of(context).size.height-290,
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            for (int i = 0; i < dataOrder[showFiltered].length; i++)
+            Card(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Pesanan ${DateTime.parse(dataOrder[showFiltered][i]["tanggal"]).day.toString().padLeft(2, "0")}/"
+                              "${DateTime.parse(dataOrder[showFiltered][i]["tanggal"]).month.toString().padLeft(2, "0")}/"
+                              "${DateTime.parse(dataOrder[showFiltered][i]["tanggal"]).year}",
+                          style: fonts().googleSansBold(Colors.black, 18),
+                        ),
+                        Text(
+                          dataOrder[showFiltered][i]["status"] == "belum dikonfirm"
+                              ? "Belum Dikonfirmasi"
+                            : dataOrder[showFiltered][i]["status"] == "dimasak"
+                              ? "Dimasak"
+                            : dataOrder[showFiltered][i]["status"] == "diantar"
+                              ? "Diantar"
+                            : dataOrder[showFiltered][i]["status"] == "sampai"
+                              ? "Sampai"
+                            : "-",
+                          style: fonts().googleSansBold(statusColorText, 18),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "${listJumlah[i]} item",
+                              style: fonts().googleSansRegular(Colors.black, 15),
+                            ),
+                            Text("Rp${numberFormat.format(listTotalHarga[i])}"),
+                          ],
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => detailTransaction(dataTransaksi: dataOrder[showFiltered][i],)));
+                          },
+                          style: style().buttonDefaultColor(16, FontWeight.bold),
+                          child: Text("Detail"),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 24),
+          ],
+        ),
+      );
+    }
+  }
+
+  cardOrderHistory(BuildContext context, List dataOrder) {
+    return ListView(
+      shrinkWrap: true,
+      children: [
+        for (int i = 0; i < dataOrder.length; i++)
           Card(
             child: Padding(
               padding: EdgeInsets.all(16),
@@ -141,54 +233,39 @@ class widgets {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "Pesanan ${DateTime.parse(dataOrder[showFiltered][i]["tanggal"]).day.toString().padLeft(2, "0")}/"
-                            "${DateTime.parse(dataOrder[showFiltered][i]["tanggal"]).month.toString().padLeft(2, "0")}/"
-                            "${DateTime.parse(dataOrder[showFiltered][i]["tanggal"]).year}",
+                        "Pesanan ${DateTime.parse(dataOrder[i]["tanggal"]).day.toString().padLeft(2, "0")}/"
+                            "${DateTime.parse(dataOrder[i]["tanggal"]).month.toString().padLeft(2, "0")}/"
+                            "${DateTime.parse(dataOrder[i]["tanggal"]).year}",
                         style: fonts().googleSansBold(Colors.black, 18),
                       ),
                       Text(
-                        dataOrder[showFiltered][i]["status"] == "belum dikonfirm"
+                        dataOrder[i]["status"] == "belum dikonfirm"
                             ? "Belum Dikonfirmasi"
-                          : dataOrder[showFiltered][i]["status"] == "dimasak"
+                            : dataOrder[i]["status"] == "dimasak"
                             ? "Dimasak"
-                          : dataOrder[showFiltered][i]["status"] == "diantar"
+                            : dataOrder[i]["status"] == "diantar"
                             ? "Diantar"
-                          : dataOrder[showFiltered][i]["status"] == "sampai"
+                            : dataOrder[i]["status"] == "sampai"
                             ? "Sampai"
-                          : "-",
-                        style: fonts().googleSansBold(statusColorText, 18),
+                            : "-",
+                        style: fonts().googleSansBold(
+                          dataOrder[i]["status"].contains("belum dikonfirm") ? Colors.red :
+                          dataOrder[i]["status"].contains("dimasak") ? Colors.deepOrangeAccent :
+                          dataOrder[i]["status"].contains("diantar") ? Colors.orange :
+                          dataOrder[i]["status"].contains("sampai") ? Colors.green :
+                          Colors.black,
+                          18,
+                        ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "${listJumlah[i]} item",
-                            style: fonts().googleSansRegular(Colors.black, 15),
-                          ),
-                          Text("Rp${numberFormat.format(listTotalHarga[i])}"),
-                        ],
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => detailTransaction(dataTransaksi: dataOrder[showFiltered][i],)));
-                          // widgetsInWidgets().showDetailTransaction(context);
-                        },
-                        child: Text("Detail"),
-                      ),
-                    ],
-                  ),
+                  Text("Dipesan oleh ${dataOrder[i]["nama_siswa"]}"),
                 ],
               ),
             ),
           ),
-        ],
-      ),
+        SizedBox(height: 12),
+      ],
     );
   }
 }

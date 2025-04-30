@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 
-import 'pages/home.dart';
-import 'pages/order.dart';
+import 'pages/setAnything.dart';
 import 'pages/account.dart';
+import 'pages/order.dart';
+import 'pages/home.dart';
 
-class overlayHomeS extends StatefulWidget {
-  overlayHomeS({super.key});
+class overlayHomeA extends StatefulWidget {
+  overlayHomeA({super.key});
 
   @override
-  State<overlayHomeS> createState() => _overlayHomeSState();
+  State<overlayHomeA> createState() => _overlayHomeAState();
 }
 
-class _overlayHomeSState extends State<overlayHomeS> {
+class _overlayHomeAState extends State<overlayHomeA> {
   int selectedIndex = 0;
 
   @override
@@ -22,9 +23,10 @@ class _overlayHomeSState extends State<overlayHomeS> {
           children: [
             IndexedStack(
               index: selectedIndex,
-              children: const <Widget>[
+              children: <Widget>[
                 beranda(),
-                pesanan(),
+                orderPage(),
+                setAnything(),
                 akun(),
               ],
             ),
@@ -36,12 +38,17 @@ class _overlayHomeSState extends State<overlayHomeS> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
             activeIcon: Icon(Icons.home),
-            label: 'Beranda',
+            label: 'Dashboard',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.receipt_outlined),
             activeIcon: Icon(Icons.receipt),
             label: 'Pesanan',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.tune_outlined),
+            activeIcon: Icon(Icons.tune),
+            label: 'Atur',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),

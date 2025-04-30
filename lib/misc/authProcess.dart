@@ -7,13 +7,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'fonts.dart';
 import '../api.dart';
 import '../loginPage.dart';
-import '../loggedIn/getProfile.dart';
+import '../loggedIn/userData.dart';
+import '../loggedIn/fetchingData.dart';
 import '../loggedIn/siswa/overlay.dart';
+import '../loggedIn/admin/overlay.dart';
 
 class auth {
   login(String username, String password, context) async {
     final prefs = await SharedPreferences.getInstance();
     api Api = new api();
+    apiSiswa _apiSiswa = apiSiswa();
     Get get = new Get();
 
     prefs.setString("username", username);
@@ -31,14 +34,28 @@ class auth {
     if (result.statusCode == 200) {
       if (resultData["user"]["role"].contains("siswa")) {
         prefs.setString("token", resultData["access_token"]);
-        prefs.setString("roleSiswa", resultData["user"]["role"]);
+        prefs.setString("roleUser", resultData["user"]["role"]);
 
         await get.profileSiswa();
+
+        var headers = {
+          "Authorization": "Bearer ${prefs.getString("token")}",
+          "makerID": "${prefs.getInt("makerID")}"
+        };
+
+        var resultDataStan = await http.post(Uri.parse(_apiSiswa.getStanData), headers: headers);
+        Map resultDataStanConvert = jsonDecode(resultDataStan.body);
+
+        dataStan().setDataStan(resultDataStanConvert["data"]);
 
         Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => overlayHomeS()), (route) => false);
       } else if (resultData["user"]["role"].contains("admin_stan")) {
         prefs.setString("token", resultData["access_token"]);
-        print("Admin Stan!");
+        prefs.setString("roleUser", resultData["user"]["role"]);
+
+        await get.profileStan();
+
+        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => overlayHomeA()), (route) => false);
       }
     } else if (result.statusCode == 401 || resultData["message"].contains("incorrect")) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -81,7 +98,9 @@ class auth {
 
         await get.profileSiswa();
       } else if (resultData["user"]["role"].contains("admin_stan")) {
-        print("Admin Stan!");
+        prefs.setString("token", resultData["access_token"]);
+
+        await get.profileStan();
       }
     } else {
       print("Gagal Login");
@@ -196,7 +215,6 @@ class auth {
         ),
       );
     } else {
-      print(resultData);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Column(

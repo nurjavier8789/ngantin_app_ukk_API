@@ -8,6 +8,12 @@ import '../../../landingPage.dart';
 import '../../../misc/fonts.dart';
 import '../../userData.dart';
 
+import 'dart:convert';
+import '../misc/functions.dart';
+import 'package:http/http.dart' as http;
+import '../../../api.dart';
+import '../../userData.dart';
+
 class akun extends StatefulWidget {
   const akun({super.key});
 
@@ -30,6 +36,7 @@ class _akunState extends State<akun> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,19 +136,6 @@ class _akunState extends State<akun> {
                       },
                       style: style().buttonCustom(Colors.red, Colors.white, 18, FontWeight.bold),
                       child: Text("Keluar"),
-                    ),
-                  ),
-
-                  Padding(
-                    padding: const EdgeInsets.only(left: 28, right: 28),
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        final prefs = await SharedPreferences.getInstance();
-                        await prefs.setString("token", "");
-                        print("Token cleared!");
-                      },
-                      style: style().buttonCustom(Colors.grey, Colors.white, 18, FontWeight.bold),
-                      child: Text("Clear Token"),
                     ),
                   ),
                 ],

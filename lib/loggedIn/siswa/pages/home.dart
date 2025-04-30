@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
-import '../misc/widgets.dart';
-import '../misc/functions.dart';
 import '../../../misc/fonts.dart';
+import 'subPages/detailStan.dart';
+import '../misc/functions.dart';
+import '../misc/widgets.dart';
+import '../../userData.dart';
 import '../../../api.dart';
+
 
 class beranda extends StatefulWidget {
   const beranda({super.key});
@@ -14,214 +16,166 @@ class beranda extends StatefulWidget {
 }
 
 class _berandaState extends State<beranda> {
-  apiSiswa _apiSiswa = new apiSiswa();
+  api _Api = new api();
 
-  List foodData = [];
-  List drinkData = [];
+  List dataStanList = [];
+  List jumlahMenuPerStan = [];
+  List gambarMenuPerStan = [];
 
+  List foodMenu = [];
+  List drinkMenu = [];
 
-  var numberFormat = NumberFormat("#,###", "id_ID");
+  fetchStan() async {
+    int jumlahTemp = 0;
+    List listTemp = [];
 
-  _getFoodandBeverage() async {
-    foodData = await getFood();
-    drinkData = await getDrink();
+    dataStanList = dataStan().getDataStan();
+    foodMenu = await getFood();
+    drinkMenu = await getDrink();
 
-    await Future.delayed(Duration(seconds: 1));
+    for (int h = 0; h < dataStanList.length; h++) {
+      for (int i = 0; i < foodMenu.length; i++) {
+        if (dataStanList[h]["id"] == foodMenu[i]["id_stan"]) {
+          listTemp.add(foodMenu[i]["foto"]);
+          jumlahTemp++;
+        }
+      }
+      for (int i = 0; i < drinkMenu.length; i++) {
+        if (dataStanList[h]["id"] == drinkMenu[i]["id_stan"]) {
+          listTemp.add(drinkMenu[i]["foto"]);
+          jumlahTemp++;
+        }
+      }
+      jumlahMenuPerStan.add(jumlahTemp);
+      jumlahTemp = 0;
+
+      gambarMenuPerStan.add(listTemp);
+      listTemp = [];
+    }
+
+    Future.delayed(Duration(seconds: 1));
     setState(() {});
   }
 
   @override
   void initState() {
-    _getFoodandBeverage();
+    fetchStan();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
-        child: DefaultTabController(
-          length: 2,
-          initialIndex: 0,
-          animationDuration: Duration(milliseconds: 150),
-          child: Column(
-            children: [
-              Container(
-                margin: EdgeInsets.all(28),
-                alignment: Alignment.centerLeft,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    widgets().greeting(),
-                    Text("Mau beli apa hari ini?", style: fonts().googleSansRegular(Colors.black, 16)),
-                  ],
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                Container(
+                  margin: EdgeInsets.all(28),
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      widgets().greeting(),
+                      Text("Mau beli apa hari ini?", style: fonts().googleSansRegular(Colors.black, 16)),
+                    ],
+                  ),
                 ),
-              ),
-              Divider(height: 0),
-              TabBar(
-                indicatorColor: Color.fromARGB(255, 218, 131, 0),
-                labelStyle: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
-                unselectedLabelStyle: TextStyle(color: Color.fromARGB(255, 100, 100, 100)),
-                indicatorSize: TabBarIndicatorSize.tab,
-                indicatorWeight: 1,
-                tabs: [
-                  Tab(text: "Makanan"),
-                  Tab(text: "Minuman"),
-                ],
-              ),
-              Expanded(
-                child: TabBarView(
-                  children: [
-                    RefreshIndicator(
-                      onRefresh: () {
-                        return Future.delayed(
-                          Duration(seconds: 1), () {
-                            _getFoodandBeverage();
-                          },
-                        );
-                      },
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: [
-                          SizedBox(height: 28),
-                          foodData.isEmpty
-                              ? Center(child: Text("Memuat Menu..."))
-                              : Center(
-                            child: Column(
-                              children: [
-                                for (int i = 0; i < foodData.length; i++)
-                                Container(
-                                  height: 100,
-                                  margin: EdgeInsets.only(left: 28, right: 28, bottom: 16),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    color: Color.fromRGBO(240, 240, 240, 1.0),
-                                  ),
+                Divider(height: 0),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () {
+                      return Future.delayed(
+                        Duration(seconds: 1), () async {
+                          await fetchStan();
+                        },
+                      );
+                    },
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        SizedBox(height: 28),
+                        Center(
+                          child: jumlahMenuPerStan.isEmpty ? Text("Memuat...") : Column(
+                            children: [
+                              for (int i = 0; i < dataStanList.length; i++)
+                              Container(
+                                width: MediaQuery.of(context).size.width,
+                                margin: EdgeInsets.only(left: 28, right: 28, bottom: 16),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: Color.fromRGBO(240, 240, 240, 1.0),
+                                ),
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => stanDetails(id: i, makanan: foodMenu, minuman: drinkMenu)));
+                                  },
                                   child: Padding(
-                                    padding: const EdgeInsets.only(right: 16),
-                                    child: Row(
+                                    padding: EdgeInsets.all(16),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        ClipRRect(
-                                          child: foodData[i]["foto"].isEmpty ? Image.asset("assets/noImage.png", width: 100,) : Image.network("${_apiSiswa.baseUrlRil}${foodData[i]["foto"]}", fit: BoxFit.cover, width: 100, height: 100),
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                        SizedBox(width: 16),
+                                        Text("${dataStanList[i]["nama_stan"]}", style: fonts().googleSansBold(Colors.black, 20)),
+                                        Text("${jumlahMenuPerStan[i]} Menu", style: fonts().googleSansRegular(Colors.black, 18)),
+                                        SizedBox(height: 8),
                                         Container(
-                                          width: MediaQuery.of(context).size.width-266,
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                          height: 100,
+                                          child: ListView(
+                                            shrinkWrap: true,
+                                            scrollDirection: Axis.horizontal,
                                             children: [
-                                              Text('${foodData[i]["nama_makanan"]}', style: fonts().googleSansBold(Colors.black, 14), softWrap: true),
-                                              Text('${foodData[i]["deskripsi"]}', style: fonts().googleSansRegular(Colors.black, 14), softWrap: true, maxLines: 1, overflow: TextOverflow.ellipsis),
-                                              Text('Rp${numberFormat.format(foodData[i]["harga"])}', style: fonts().googleSansRegular(Colors.black, 14)),
+                                              for (int j = 0; j < jumlahMenuPerStan[i]; j++)
+                                                Container(
+                                                  margin: EdgeInsets.only(right: 12),
+                                                  child: ClipRRect(
+                                                    borderRadius: BorderRadius.circular(8),
+                                                    child: Image.network("${_Api.baseUrlRil}${gambarMenuPerStan[i][j]}", height: 100, width: 100, fit: BoxFit.cover),
+                                                  ),
+                                                ),
                                             ],
                                           ),
-                                        ),
-                                        Expanded(child: Container()),
-                                        Container(
-                                          width: 40,
-                                          height: 40,
-                                          decoration: BoxDecoration(
-                                            color: Color.fromARGB(255, 218, 131, 0),
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          alignment: Alignment.center,
-                                          child: InkWell(
-                                            onTap: () {
-                                              widgets().showDetail(context, foodData, i);
-                                            },
-                                            child: Icon(Icons.info, color: Colors.white),
-                                          ),
-                                        ),
+                                        )
                                       ],
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-
-                    RefreshIndicator(
-                      onRefresh: () {
-                        return Future.delayed(
-                          Duration(seconds: 1), () {
-                            _getFoodandBeverage();
-                          },
-                        );
-                      },
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: [
-                          SizedBox(height: 28),
-                          drinkData.isEmpty
-                              ? Center(child: Text("Memuat Menu..."))
-                              : Center(
-                            child: Column(
-                              children: [
-                                for (int i = 0; i < drinkData.length; i++)
-                                  Container(
-                                    height: 100,
-                                    margin: EdgeInsets.only(left: 28, right: 28, bottom: 16),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      color: Color.fromRGBO(240, 240, 240, 1.0),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(right: 16),
-                                      child: Row(
-                                        children: [
-                                          ClipRRect(
-                                            child: drinkData[i]["foto"].isEmpty ? Image.asset("assets/noImage.png", width: 100,) : Image.network("${_apiSiswa.baseUrlRil}${drinkData[i]["foto"]}", fit: BoxFit.cover, width: 100, height: 100),
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          SizedBox(width: 16),
-                                          Container(
-                                            width: MediaQuery.of(context).size.width-266,
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text('${drinkData[i]["nama_makanan"]}', style: fonts().googleSansBold(Colors.black, 14), softWrap: true),
-                                                Text('${drinkData[i]["deskripsi"]}', style: fonts().googleSansRegular(Colors.black, 14), softWrap: true, maxLines: 1, overflow: TextOverflow.ellipsis),
-                                                Text('Rp${numberFormat.format(drinkData[i]["harga"])}', style: fonts().googleSansRegular(Colors.black, 14)),
-                                              ],
-                                            ),
-                                          ),
-                                          Expanded(child: Container()),
-                                          Container(
-                                            width: 40,
-                                            height: 40,
-                                            decoration: BoxDecoration(
-                                              color: Color.fromARGB(255, 218, 131, 0),
-                                              borderRadius: BorderRadius.circular(12),
-                                            ),
-                                            alignment: Alignment.center,
-                                            child: InkWell(
-                                              onTap: () {
-                                                widgets().showDetail(context, drinkData, i);
-                                              },
-                                              child: Icon(Icons.info, color: Colors.white),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+            // Container(
+            //   alignment: Alignment.bottomRight,
+            //   margin: EdgeInsets.all(24),
+            //   child: ElevatedButton(
+            //     // onPressed: () {},
+            //     onPressed: null,
+            //     style: ElevatedButton.styleFrom(
+            //       fixedSize: Size(110, 70),
+            //       backgroundColor: Color.fromARGB(255, 218, 131, 0),
+            //       foregroundColor: Colors.white,
+            //
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(8),
+            //       ),
+            //     ),
+            //     child: Row(
+            //       children: [
+            //         Icon(Icons.shopping_cart_outlined, color: Colors.white, size: 32),
+            //         SizedBox(width: 12),
+            //         Text("-", style: fonts().googleSansCustom(Colors.white, 24, FontWeight.bold)),
+            //       ],
+            //     ),
+            //   ),
+            // ),
+          ],
         ),
       ),
     );

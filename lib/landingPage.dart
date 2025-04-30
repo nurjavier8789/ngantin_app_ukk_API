@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'loginPage.dart';
 import 'registerPage/regisPage1.dart';
+import 'loginPage.dart';
 
 import 'misc/styles.dart';
 import 'misc/fonts.dart';
@@ -14,12 +14,6 @@ class landingPage extends StatefulWidget {
 }
 
 class _landingPageState extends State<landingPage> {
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

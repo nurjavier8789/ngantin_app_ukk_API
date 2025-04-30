@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../misc/styles.dart';
 import '../../../../misc/fonts.dart';
 import '../../misc/functions.dart';
-import '../../../getProfile.dart';
+import '../../../fetchingData.dart';
 import '../../../userData.dart';
 
 class editProfilePage extends StatefulWidget {

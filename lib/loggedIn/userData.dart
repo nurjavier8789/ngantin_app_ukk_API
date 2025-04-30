@@ -9,6 +9,8 @@ String urlFoto = "";
 int idUser = 0;
 String username = "";
 
+List dataStanList = [];
+
 class dataUser {
   setDataSiswa(String namaSiswa, String alamatSiswa, String noTelpSiswa, String urlFotoSiswa, int idUserSiswa, String usernameSiswa, int _makerID) {
     nama = namaSiswa;
@@ -51,5 +53,18 @@ class dataUser {
   getUsername() {
     return username;
   }
+
+  getNamaStan() {
+    return nama_stan;
+  }
 }
 
+class dataStan {
+  setDataStan(List e) {
+    dataStanList = e;
+  }
+
+  getDataStan() {
+    return dataStanList;
+  }
+}

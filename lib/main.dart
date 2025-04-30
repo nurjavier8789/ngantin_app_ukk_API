@@ -7,7 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:yukan_app_ukk/misc/fonts.dart';
 
 import 'loggedIn/siswa/overlay.dart';
-import 'loggedIn/getProfile.dart';
+import 'loggedIn/admin/overlay.dart';
+import 'loggedIn/fetchingData.dart';
 import 'landingPage.dart';
 import 'api.dart';
 
@@ -47,10 +48,10 @@ class _mainAppState extends State<mainApp> {
       await Future.delayed(Duration(seconds: 3));
       Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => landingPage()), (route) => false);
     } else {
-      if (prefs.getString("roleSiswa") == null) {
+      if (prefs.getString("roleUser") == null) {
         await Future.delayed(Duration(seconds: 3));
         Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => landingPage()), (route) => false);
-      } else if (prefs.getString("roleSiswa")!.contains("siswa")) {
+      } else if (prefs.getString("roleUser")!.contains("siswa")) {
         var result = await http.get(Uri.parse(_apiSiswa.getProfile), headers: {
           "Authorization": "Bearer ${prefs.getString("token")}",
           "makerID": "${Api.makerID}",
@@ -60,12 +61,14 @@ class _mainAppState extends State<mainApp> {
 
         if (resultData["status"] == true) {
           await get.profileSiswa();
+          await get.stanDataList();
+
           Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => overlayHomeS()), (route) => false);
         } else if (resultData["status"] == false) {
           Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => landingPage()), (route) => false);
         }
 
-      } else if (prefs.getString("roleSiswa")!.contains("admin_stan")) {
+      } else if (prefs.getString("roleUser")!.contains("admin_stan")) {
         var result = await http.get(Uri.parse(_apiAdmin.getProfile), headers: {
           "Authorization": "Bearer ${prefs.getString("token")}",
           "makerID": "${Api.makerID}",
@@ -74,8 +77,8 @@ class _mainAppState extends State<mainApp> {
         Map<String, dynamic> resultData = jsonDecode(result.body);
 
         if (resultData["status"] == true) {
-          print("admin udah masuk!");
-          Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => landingPage()), (route) => false);
+          await get.profileStan();
+          Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => overlayHomeA()), (route) => false);
         } else if (resultData["status"] == false) {
           Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => landingPage()), (route) => false);
         }
